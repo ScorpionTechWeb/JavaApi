@@ -6,52 +6,39 @@ import javax.persistence.*;
 @Table(name = "userbean")
 public class Userbean {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_user")
-    private int idUser;
-    @Column(name = "login")
-    private String login;
-    @Column(name = "password")
-    private String password;
-    @Column(name = "name")
-    private String name;
-    @Column(name = "id_role")
-    private int idRole;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name= "id_user") private int idUser;
+    @Column(name= "login") private String login;
+    @Column(name= "password") private String password;
+    @Column(name= "name") private String name;
+    @ManyToOne() @JoinColumn(name= "id_role") private Rolebean role;
+
 
     public Userbean() {
     }
 
-    public Userbean(int idUser, String login, String password, String name, int idRole) {
+    public Userbean(int idUser, String login, String password, String name, Rolebean role) {
         super();
         this.idUser = idUser;
         this.login = login;
         this.password = password;
         this.name = name;
-        this.idRole = idRole;
+        this.role = role;
     }
 
-    public Userbean(String name, int idRole, String login) {
+    public Userbean(String name, Rolebean role, String login) {
         super();
         this.login = login;
         this.name = name;
-        this.idRole = idRole;
+        this.role = role;
     }
 
-    public Userbean(String login, String passHashed, String name, int idRole) {
+    public Userbean(String login, String passHashed, String name, Rolebean role) {
         super();
         this.login = login;
         this.password = passHashed;
         this.name = name;
-        this.idRole = idRole;
-    }
-
-    public int getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
+        this.role = role;
     }
 
     public String getLogin() {
@@ -78,12 +65,11 @@ public class Userbean {
         this.name = name;
     }
 
-    public int getIdRole() {
-        return idRole;
+    public Rolebean getRole() {
+        return role;
     }
 
-    public void setIdRole(int idRole) {
-        this.idRole = idRole;
+    public void setRole() {
+        this.role = role;
     }
-
 }

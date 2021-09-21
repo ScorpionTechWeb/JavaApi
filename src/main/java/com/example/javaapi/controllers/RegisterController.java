@@ -1,5 +1,7 @@
 package com.example.javaapi.controllers;
 
+import com.example.javaapi.models.Message;
+import com.example.javaapi.models.Rolebean;
 import com.example.javaapi.models.Userbean;
 import com.example.javaapi.models.daos.Userdao;
 import org.mindrot.jbcrypt.BCrypt;
@@ -7,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
@@ -22,23 +23,26 @@ public class RegisterController {
 
     //http://localhost:8080/register
     @PostMapping("/register")
-    Userbean register(@RequestBody Userbean user) {
+    Object register(@RequestBody Userbean user) {
 
+        Message message = new Message();
         System.out.println("/register user = " + user);
         try {
-            System.out.println(user.getLogin());
             if (user.getLogin().isEmpty() || user.getLogin().isBlank()) {
-                throw new Exception("Le pseudo est vide ou manquant");
+                message.setMessage("Le pseudo est vide ou manquant");
+                message.setCode(411);
+                throw new Exception(message.getMessage());
             }
-            System.out.println(user.getPassword());
             if (user.getPassword().isEmpty() || user.getPassword().isBlank()) {
-                throw new Exception("Le password est vide ou manquant");
+                message.setMessage("Le password est vide ou manquant");
+                message.setCode(412);
+                throw new Exception(message.getMessage());
             }
-            System.out.println(user.getName());
             List<Userbean> users = userdao.findAllByLogin(user.getLogin());
-            System.out.println(users);
             if (!users.isEmpty()) {
-                throw new Exception("Il y a déjà un utilisateur s'appelant ${user.getLogin()}");
+                message.setMessage("Il y a déjà un utilisateur s'appelant " + user.getLogin());
+                message.setCode(415);
+                throw new Exception(message.getMessage());
             } else {
                 // Hashage d'un mot de passe
                 // Il est possible d'augmenter la complexité (et donc le temps
@@ -50,14 +54,15 @@ public class RegisterController {
                 String passHashed = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12));
                 String login = user.getLogin();
                 String name = user.getName();
-                int idRole = 2;
-                Userbean userToSave = new Userbean(login, passHashed, name, idRole);
+                Rolebean role = new Rolebean();
+                role.setIdRole(2);
+                Userbean userToSave = new Userbean(login, passHashed, name, role);
                 userdao.save(userToSave);
                 return userToSave;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return message;
         }
     }
 }
